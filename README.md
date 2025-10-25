@@ -1,4 +1,4 @@
-# Code Title: Bias Detector for Job Ads  
+# Bias Detector for Job Ads  
 **Student Name:** Sungeun Lee  
 **Date:** 25 October 2025  
 **Repository Link:** https://github.com/1eesungeun/bias-detector-job-ads
