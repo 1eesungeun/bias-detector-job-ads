@@ -1,7 +1,7 @@
 Code Title: Bias Detector for Job Ads  
 Student Name: Sungeun Lee
 Date: 25 October 2025
-Repository Link:
+Repository Link: https://github.com/1eesungeun/bias-detector-job-ads
 
 1. Code Overview
 The Bias Detector for Job Ads is a Python web prototype built with Streamlit. It helps users identify and understand biased language in job advertisements. The app combines a local rule-based highlighter with an AI-driven Gemini explainer that provides short rationales and inclusive rewrites.
