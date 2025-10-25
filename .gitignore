@@ -1,0 +1,19 @@
+# Python venvs & caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# OS/editor cruft
+.DS_Store
+*.swp
+*.code-workspace
+
+# Local data / logs
+logs/
+*.log
+*.csv
+
+# Secrets
+.env
+.env.*
