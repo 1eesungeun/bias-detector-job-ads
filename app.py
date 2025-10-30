@@ -10,6 +10,12 @@ load_dotenv()  # This line loads the .env file.
 from nav import render_navbar  
 from about import render_about  
 from footer import render_footer  
+from prompts import GEMINI_SYSTEM_PROMPT # Imports the system prompt for Gemini from prompts.py.
+
+# --- Normalize Unicode hyphens/dashes to plain ASCII hyphen so regex matches work ---
+_HYPHENS = dict.fromkeys(map(ord, "\u2010\u2011\u2012\u2013\u2014\u2015"), ord("-"))
+def _normalize_hyphens(s: str) -> str:
+    return s.translate(_HYPHENS)
 
 APP_TITLE = "Bias Detector for Job Ads" # The title of the app shown in the browser tab.
 
@@ -105,7 +111,7 @@ DEFAULT_LEXICON = {
         "rewrite": "Say ‘must have the legal right to work in X’ instead of nationality restrictions."
     },
     "appearance bias": {
-        "phrases": ["well presented", "well-groomed"],
+        "phrases": ["well-presented", "well-groomed"],
         "patterns": [],
         "rewrite": "Focus on professionalism (e.g., ‘client-facing dress code’) rather than appearance."
     }
@@ -152,14 +158,6 @@ LABEL_EXPLANATIONS = {
     "gender bias": "Gendered terms or titles (e.g., 'salesman', 'chairman').",
 }
 
-
- # This is the system prompt sent to Gemini to explain bias and suggest rewrites.
-GEMINI_SYSTEM_PROMPT = (
-    "You are an HCAI assistant that explains potentially biased wording in job advertisements. "
-    "Your job: (1) list detected categories, (2) explain why each is risky referencing fairness, inclusion, or legal risk, "
-    "and (3) propose concrete rewrites. Keep the tone educational and concise. Output Markdown only."
-)
-
 def analyze_with_gemini(text: str, grouped_hits: dict, temperature: float = 0.3) -> str:
     """
     This function sends the user text and detected bias terms to Gemini.
@@ -190,7 +188,7 @@ def analyze_with_gemini(text: str, grouped_hits: dict, temperature: float = 0.3)
 4) Keep it under ~300 words. Markdown headings and bullets are fine.
 """
     # Ask Gemini to generate the Markdown output. Show a readable error if it fails.
-    try:
+    try: # The API call and response handling
         resp = model.generate_content(
             [{"role": "user", "parts": [{"text": GEMINI_SYSTEM_PROMPT}, {"text": user_prompt}]}],
             generation_config={"temperature": float(temperature)}
@@ -441,8 +439,8 @@ if current_page == "about":
     render_footer()
     st.stop()
 
-# Fixed temperature for Gemini output (can be changed via environment variable).
-temperature = float(os.getenv("APP_TEMPERATURE", 0.3))
+# Fixed temperature for Gemini output (creativity control).
+temperature = float(os.getenv("APP_TEMPERATURE", 0.4))
 
 # Layout: two columns (left for intro, right for user input/results).
 left_col, spacer, right_col = st.columns([1, 0.05, 1])
@@ -480,9 +478,12 @@ with right_col:
 # 3) Calls Gemini for explanations and rewrites.
 # 4) Shows results in two tabs: Quick Highlights and Contextual Explanations.
 if run:
-    text = st.session_state.get("text", "")
+    # Keep original user text for display; normalize a copy for detection.
+    raw_text = st.session_state.get("text", "")
+    text = _normalize_hyphens(raw_text)
+
     # === Rule-based Detection ===
-    # Find highlights using lexicon and regex rules.
+    # Find highlights using lexicon and regex rules on the normalized text.
     lex_hits = find_bias_lexicon(text, DEFAULT_LEXICON, context_chars=30)
     rule_hits, _ = find_bias_rules(text)
     # Group detected terms by bias category for both UI and Gemini.
