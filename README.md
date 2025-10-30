@@ -8,7 +8,7 @@ The Bias Detector for Job Ads is a Python web prototype built with Streamlit. It
 
 ## 2. Main Features & Structure  
 • **app.py** – main controller; handles layout, routing, text input, bias detection, and Gemini API calls; renders results.  
-• **prompts.py** – provides Gemini’s system prompt, tone example, and text formatting for bias analysis.
+• **prompts.py** – defines Gemini’s system prompt and text formatting used for bias explanation and rewrites.  
 • **intro.py** – defines the left-column content for the Check page, including the introductory text and usage instructions.  
 • **about.py** – defines the content for the About page, including an overview of the tool’s purpose, bias categories, target users, privacy explanation, and limitations.  
 • **nav.py** – defines the top navigation bar for page switching.  
